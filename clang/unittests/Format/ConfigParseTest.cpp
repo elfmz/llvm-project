@@ -480,6 +480,11 @@ TEST(ConfigParseTest, ParsesConfiguration) {
               FormatStyle::OAS_DontAlign);
   CHECK_PARSE("AlignOperands: true", AlignOperands, FormatStyle::OAS_Align);
 
+  Style.ContinuationAlignByTab = true;
+  CHECK_PARSE("ContinuationAlignment: false", ContinuationAlignment, false);
+  CHECK_PARSE("ContinuationAlignment: true", ContinuationAlignment, true);
+  CHECK_PARSE("ContinuationAlignment: false", ContinuationAlignment, false);
+
   CHECK_PARSE("AlignTrailingComments: Leave", AlignTrailingComments,
               FormatStyle::TrailingCommentsAlignmentStyle(
                   {FormatStyle::TCAS_Leave, 1}));

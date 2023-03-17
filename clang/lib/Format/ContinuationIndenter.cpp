@@ -437,7 +437,7 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
     return true;
   }
 
-  unsigned NewLineColumn = getNewLineColumn(State);
+  unsigned NewLineColumn = calcContinuationBase(CurrentState.Indent, getNewLineColumn(State));
   if (Current.isMemberAccess() && Style.ColumnLimit != 0 &&
       State.Column + getLengthToNextOperator(Current) > Style.ColumnLimit &&
       (State.Column > NewLineColumn ||
@@ -640,6 +640,7 @@ unsigned ContinuationIndenter::addTokenToState(LineState &State, bool Newline,
   else
     addTokenOnCurrentLine(State, DryRun, ExtraSpaces);
 
+
   return moveStateToNextToken(State, DryRun, Newline) + Penalty;
 }
 
@@ -722,7 +723,7 @@ void ContinuationIndenter::addTokenOnCurrentLine(LineState &State, bool DryRun,
       (Previous.isOneOf(tok::l_paren, TT_TemplateOpener, tok::l_square) ||
        (Previous.is(tok::l_brace) && Previous.isNot(BK_Block) &&
         Style.Cpp11BracedListStyle)) &&
-      State.Column > getNewLineColumn(State) &&
+      State.Column > calcContinuationBase(CurrentState.Indent, getNewLineColumn(State)) &&
       (!Previous.Previous ||
        !Previous.Previous->isOneOf(TT_CastRParen, tok::kw_for, tok::kw_while,
                                    tok::kw_switch)) &&
@@ -755,7 +756,7 @@ void ContinuationIndenter::addTokenOnCurrentLine(LineState &State, bool DryRun,
   if (CurrentState.AvoidBinPacking && startsNextParameter(Current, Style))
     CurrentState.NoLineBreak = true;
   if (startsSegmentOfBuilderTypeCall(Current) &&
-      State.Column > getNewLineColumn(State)) {
+      State.Column > calcContinuationBase(CurrentState.Indent, getNewLineColumn(State))) {
     CurrentState.ContainsUnwrappedBuilder = true;
   }
 
@@ -886,7 +887,7 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
     Penalty += Style.PenaltyBreakFirstLessLess;
   }
 
-  State.Column = getNewLineColumn(State);
+  State.Column = calcContinuationBase(CurrentState.Indent, getNewLineColumn(State));
 
   // Add Penalty proportional to amount of whitespace away from FirstColumn
   // This tends to penalize several lines that are far-right indented,
@@ -1086,6 +1087,21 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
   return Penalty;
 }
 
+unsigned ContinuationIndenter::calcContinuationBase(unsigned CurrentIndent, unsigned SuggestedBase)
+{
+    if (Style.ContinuationAlignByTab) {
+        const unsigned Misalignment = SuggestedBase % Style.TabWidth;
+        if (Misalignment) {
+            SuggestedBase -= Misalignment;
+            if (SuggestedBase <= CurrentIndent) {
+                SuggestedBase += Style.TabWidth;
+            }
+        }
+    }
+
+    return SuggestedBase;
+}
+
 unsigned ContinuationIndenter::getNewLineColumn(const LineState &State) {
   if (!State.NextToken || !State.NextToken->Previous)
     return 0;
@@ -1103,6 +1119,7 @@ unsigned ContinuationIndenter::getNewLineColumn(const LineState &State) {
   unsigned ContinuationIndent =
       std::max(CurrentState.LastSpace, CurrentState.Indent) +
       Style.ContinuationIndentWidth;
+
   const FormatToken *PreviousNonComment = Current.getPreviousNonComment();
   const FormatToken *NextNonComment = Previous.getNextNonComment();
   if (!NextNonComment)
@@ -1467,6 +1484,8 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
         !Newline && hasNestedBlockInlined(Previous, Current, Style);
   }
 
+  CurrentState.Indent = calcContinuationBase(CurrentState.Indent, CurrentState.Indent);
+
   moveStatePastFakeLParens(State, Newline);
   moveStatePastScopeCloser(State);
   // Do not use CurrentState here, since the two functions before may change the
@@ -1604,6 +1623,7 @@ void ContinuationIndenter::moveStatePastFakeLParens(LineState &State,
                 !Current.isTrailingComment())) {
       NewParenState.Indent += Style.ContinuationIndentWidth;
     }
+    NewParenState.Indent = calcContinuationBase(CurrentState.Indent, NewParenState.Indent);
     if ((Previous && !Previous->opensScope()) || PrecedenceLevel != prec::Comma)
       NewParenState.BreakBeforeParameter = false;
     State.Stack.push_back(NewParenState);
@@ -1745,6 +1765,7 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
     if (Style.isJavaScript() && EndsInComma)
       BreakBeforeParameter = true;
   }
+  NewIndent = calcContinuationBase(CurrentState.Indent, NewIndent);
   // Generally inherit NoLineBreak from the current scope to nested scope.
   // However, don't do this for non-empty nested blocks, dict literals and
   // array literals as these follow different indentation rules.
@@ -1836,6 +1857,7 @@ void ContinuationIndenter::moveStateToNewBlock(LineState &State) {
       NestedBlockIndent + (State.NextToken->is(TT_ObjCBlockLBrace)
                                ? Style.ObjCBlockIndentWidth
                                : Style.IndentWidth);
+  NewIndent = calcContinuationBase(State.Stack.back().Indent, NewIndent);
   State.Stack.push_back(ParenState(State.NextToken, NewIndent,
                                    State.Stack.back().LastSpace,
                                    /*AvoidBinPacking=*/true,

@@ -370,6 +370,8 @@ struct FormatStyle {
   /// \version 3.5
   OperandAlignmentStyle AlignOperands;
 
+  bool ContinuationAlignByTab;
+
   /// Enums for AlignTrailingComments
   enum TrailingCommentsAlignmentKinds : int8_t {
     /// Leave trailing comments as they are.

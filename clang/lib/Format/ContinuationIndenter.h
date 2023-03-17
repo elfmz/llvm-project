@@ -172,6 +172,9 @@ private:
   /// \c Replacement.
   unsigned addTokenOnNewLine(LineState &State, bool DryRun);
 
+  /// returns SuggestedBase optionally extra rounded
+  unsigned calcContinuationBase(unsigned CurrentIndent, unsigned SuggestedBase);
+
   /// Calculate the new column for a line wrap before the next token.
   unsigned getNewLineColumn(const LineState &State);
 

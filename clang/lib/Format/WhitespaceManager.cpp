@@ -902,6 +902,9 @@ void WhitespaceManager::alignConsecutiveDeclarations() {
 }
 
 void WhitespaceManager::alignChainedConditionals() {
+  if (Style.ContinuationAlignByTab)
+    return;
+
   if (Style.BreakBeforeTernaryOperators) {
     AlignTokens(
         Style,
