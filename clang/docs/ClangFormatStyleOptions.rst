@@ -4647,14 +4647,14 @@ the configuration (without a prefix: ``Auto``).
 
 .. _SpaceBeforeAssignmentOperators:
 
-**SpaceBeforeAssignmentOperators** (``Boolean``) :versionbadge:`clang-format 3.7` :ref:`¶ <SpaceBeforeAssignmentOperators>`
-  If ``false``, spaces will be removed before assignment operators.
+**SpaceBeforeAssignmentOperators** (``SpaceBeforeAssignmentOperatorsStyle``) :versionbadge:`clang-format 3.7` :ref:`¶ <SpaceBeforeAssignmentOperators>`
+  If ``SBAO_No``, spaces will be removed before assignment operators.
 
   .. code-block:: c++
 
-     true:                                  false:
-     int a = 5;                     vs.     int a= 5;
-     a += 42;                               a+= 42;
+     SBAO_Always:                           SBAO_No:                       SBAO_OnlyTrivial
+     int a = 5;                     vs.     int a= 5;              vs.     int a = 5;
+     a += 42;                               a+= 42;                        a+= 42;
 
 .. _SpaceBeforeCaseColon:
 

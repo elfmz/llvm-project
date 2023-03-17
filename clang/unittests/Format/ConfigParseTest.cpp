@@ -184,7 +184,6 @@ TEST(ConfigParseTest, ParsesConfigurationBools) {
   CHECK_PARSE_BOOL(SpaceAfterCStyleCast);
   CHECK_PARSE_BOOL(SpaceAfterTemplateKeyword);
   CHECK_PARSE_BOOL(SpaceAfterLogicalNot);
-  CHECK_PARSE_BOOL(SpaceBeforeAssignmentOperators);
   CHECK_PARSE_BOOL(SpaceBeforeCaseColon);
   CHECK_PARSE_BOOL(SpaceBeforeCpp11BracedList);
   CHECK_PARSE_BOOL(SpaceBeforeCtorInitializerColon);
@@ -256,6 +255,19 @@ TEST(ConfigParseTest, ParsesConfiguration) {
               FormatStyle::QAS_Left);
   CHECK_PARSE("QualifierAlignment: Custom", QualifierAlignment,
               FormatStyle::QAS_Custom);
+
+  Style.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_Always;
+  CHECK_PARSE("SpaceBeforeAssignmentOperators: No", SpaceBeforeAssignmentOperators,
+              FormatStyle::SBAO_No);
+  CHECK_PARSE("SpaceBeforeAssignmentOperators: Always", SpaceBeforeAssignmentOperators,
+              FormatStyle::SBAO_Always);
+  CHECK_PARSE("SpaceBeforeAssignmentOperators: OnlyTrivial", SpaceBeforeAssignmentOperators,
+              FormatStyle::SBAO_OnlyTrivial);
+  CHECK_PARSE("SpaceBeforeAssignmentOperators: false", SpaceBeforeAssignmentOperators,
+              FormatStyle::SBAO_No);
+  CHECK_PARSE("SpaceBeforeAssignmentOperators: true", SpaceBeforeAssignmentOperators,
+              FormatStyle::SBAO_Always);
+
 
   Style.QualifierOrder.clear();
   CHECK_PARSE("QualifierOrder: [ const, volatile, type ]", QualifierOrder,

@@ -4505,8 +4505,12 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
       (Right.is(tok::period) && Right.isNot(TT_DesignatedInitializerPeriod))) {
     return false;
   }
-  if (!Style.SpaceBeforeAssignmentOperators && Left.isNot(TT_TemplateCloser) &&
+  if (Style.SpaceBeforeAssignmentOperators == FormatStyle::SBAO_No && Left.isNot(TT_TemplateCloser) &&
       Right.getPrecedence() == prec::Assignment) {
+    return false;
+  }
+  if (Style.SpaceBeforeAssignmentOperators == FormatStyle::SBAO_OnlyTrivial && Left.isNot(TT_TemplateCloser) &&
+      Right.getPrecedence() == prec::Assignment && !Right.is(tok::equal)) {
     return false;
   }
   if (Style.Language == FormatStyle::LK_Java && Right.is(tok::coloncolon) &&

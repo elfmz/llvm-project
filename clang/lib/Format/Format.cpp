@@ -652,6 +652,18 @@ template <> struct MappingTraits<FormatStyle::SpaceBeforeParensCustom> {
 };
 
 template <>
+struct ScalarEnumerationTraits<FormatStyle::SpaceBeforeAssignmentOperatorsStyle> {
+  static void
+  enumeration(IO &IO, FormatStyle::SpaceBeforeAssignmentOperatorsStyle &Value) {
+    IO.enumCase(Value, "No", FormatStyle::SBAO_No);
+    IO.enumCase(Value, "false", FormatStyle::SBAO_No);
+    IO.enumCase(Value, "Always", FormatStyle::SBAO_Always);
+    IO.enumCase(Value, "true", FormatStyle::SBAO_Always);
+    IO.enumCase(Value, "OnlyTrivial", FormatStyle::SBAO_OnlyTrivial);
+  }
+};
+
+template <>
 struct ScalarEnumerationTraits<FormatStyle::SpaceBeforeParensStyle> {
   static void enumeration(IO &IO, FormatStyle::SpaceBeforeParensStyle &Value) {
     IO.enumCase(Value, "Never", FormatStyle::SBPO_Never);
@@ -1435,7 +1447,7 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.SpaceBeforeParensOptions.AfterForeachMacros = true;
   LLVMStyle.SpaceBeforeParensOptions.AfterIfMacros = true;
   LLVMStyle.SpaceBeforeRangeBasedForLoopColon = true;
-  LLVMStyle.SpaceBeforeAssignmentOperators = true;
+  LLVMStyle.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_Always;
   LLVMStyle.SpaceBeforeCpp11BracedList = false;
   LLVMStyle.SpaceBeforeSquareBrackets = false;
   LLVMStyle.SpaceInEmptyBlock = false;

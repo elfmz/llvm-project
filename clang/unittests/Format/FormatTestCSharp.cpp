@@ -420,12 +420,12 @@ TEST_F(FormatTestCSharp, CSharpNullCoalescing) {
 
 TEST_F(FormatTestCSharp, CSharpNullCoalescingAssignment) {
   FormatStyle Style = getGoogleStyle(FormatStyle::LK_CSharp);
-  Style.SpaceBeforeAssignmentOperators = true;
+  Style.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_Always;
 
   verifyFormat(R"(test ??= ABC;)", Style);
   verifyFormat(R"(test ??= true;)", Style);
 
-  Style.SpaceBeforeAssignmentOperators = false;
+  Style.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_No;
 
   verifyFormat(R"(test??= ABC;)", Style);
   verifyFormat(R"(test??= true;)", Style);

@@ -10355,7 +10355,7 @@ TEST_F(FormatTest, UnderstandsTemplateParameters) {
   verifyFormat("bool b = a<1> >= 1;");
   verifyFormat("int i = a<1> >> 1;");
   FormatStyle Style = getLLVMStyle();
-  Style.SpaceBeforeAssignmentOperators = false;
+  Style.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_No;
   verifyFormat("bool b= a<1> == 1;", Style);
   verifyFormat("a<int> = 1;", Style);
   verifyFormat("a<int> >>= 1;", Style);
@@ -16542,8 +16542,13 @@ TEST_F(FormatTest, ConfigurableSpaceBeforeAssignmentOperators) {
   verifyFormat("a or_eq 8;");
 
   FormatStyle Spaces = getLLVMStyle();
-  Spaces.SpaceBeforeAssignmentOperators = false;
+  Spaces.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_No;
   verifyFormat("int a= 5;", Spaces);
+  verifyFormat("a+= 42;", Spaces);
+  verifyFormat("a or_eq 8;", Spaces);
+
+  Spaces.SpaceBeforeAssignmentOperators = FormatStyle::SBAO_OnlyTrivial;
+  verifyFormat("int a = 5;", Spaces);
   verifyFormat("a+= 42;", Spaces);
   verifyFormat("a or_eq 8;", Spaces);
 }

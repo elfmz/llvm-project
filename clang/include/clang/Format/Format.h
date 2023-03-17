@@ -3659,14 +3659,19 @@ struct FormatStyle {
   /// \version 12
   SpaceAroundPointerQualifiersStyle SpaceAroundPointerQualifiers;
 
+  enum SpaceBeforeAssignmentOperatorsStyle : int8_t {
+      SBAO_No,
+      SBAO_Always,
+      SBAO_OnlyTrivial,
+  };
   /// If ``false``, spaces will be removed before assignment operators.
   /// \code
-  ///    true:                                  false:
-  ///    int a = 5;                     vs.     int a= 5;
-  ///    a += 42;                               a+= 42;
+  ///    true:                                  false:            OnlyTrivial:
+  ///    int a = 5;                     vs.     int a= 5;   vs    int a = 5;
+  ///    a += 42;                               a+= 42;           a+= 42;
   /// \endcode
   /// \version 3.7
-  bool SpaceBeforeAssignmentOperators;
+  SpaceBeforeAssignmentOperatorsStyle SpaceBeforeAssignmentOperators;
 
   /// If ``false``, spaces will be removed before case colon.
   /// \code
