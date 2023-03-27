@@ -412,7 +412,8 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
   }
 
   const FormatToken &BreakConstructorInitializersToken =
-      Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon
+      (Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon ||
+       Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColonSeparated)
           ? Previous
           : Current;
   if (BreakConstructorInitializersToken.is(TT_CtorInitializerColon) &&
@@ -819,8 +820,10 @@ void ContinuationIndenter::addTokenOnCurrentLine(LineState &State, bool DryRun,
     CurrentState.LastSpace = State.Column;
   } else if (Previous.is(TT_CtorInitializerColon) &&
              (!Current.isTrailingComment() || Current.NewlinesBefore > 0) &&
-             Style.BreakConstructorInitializers ==
-                 FormatStyle::BCIS_AfterColon) {
+             (Style.BreakConstructorInitializers ==
+                 FormatStyle::BCIS_AfterColon ||
+              Style.BreakConstructorInitializers ==
+                 FormatStyle::BCIS_AfterColonSeparated)) {
     CurrentState.Indent = State.Column;
     CurrentState.LastSpace = State.Column;
   } else if ((Previous.isOneOf(TT_BinaryOperator, TT_ConditionalExpr,
@@ -1059,7 +1062,8 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
     // this is a dict/object literal.
     bool PreviousIsBreakingCtorInitializerColon =
         PreviousNonComment && PreviousNonComment->is(TT_CtorInitializerColon) &&
-        Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon;
+        (Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon ||
+         Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColonSeparated);
     bool AllowAllConstructorInitializersOnNextLine =
         Style.PackConstructorInitializers == FormatStyle::PCIS_NextLine ||
         Style.PackConstructorInitializers == FormatStyle::PCIS_NextLineOnly;
@@ -1316,7 +1320,8 @@ unsigned ContinuationIndenter::getNewLineColumn(const LineState &State) {
   if (NextNonComment->is(TT_CtorInitializerComma))
     return CurrentState.Indent;
   if (PreviousNonComment && PreviousNonComment->is(TT_CtorInitializerColon) &&
-      Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon) {
+      (Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon ||
+       Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColonSeparated)) {
     return CurrentState.Indent;
   }
   if (PreviousNonComment && PreviousNonComment->is(TT_InheritanceColon) &&
@@ -1418,7 +1423,8 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
   if (Current.is(TT_SelectorName))
     CurrentState.ObjCSelectorNameFound = true;
   if (Current.is(TT_CtorInitializerColon) &&
-      Style.BreakConstructorInitializers != FormatStyle::BCIS_AfterColon) {
+      Style.BreakConstructorInitializers != FormatStyle::BCIS_AfterColon &&
+      Style.BreakConstructorInitializers != FormatStyle::BCIS_AfterColonSeparated) {
     // Indent 2 from the column, so:
     // SomeClass::SomeClass()
     //     : First(...), ...
@@ -1439,7 +1445,8 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
     }
   }
   if (Current.is(TT_CtorInitializerColon) &&
-      Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon) {
+      (Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColon ||
+       Style.BreakConstructorInitializers == FormatStyle::BCIS_AfterColonSeparated)) {
     CurrentState.Indent =
         State.FirstIndent + Style.ConstructorInitializerIndentWidth;
     CurrentState.NestedBlockIndent = CurrentState.Indent;

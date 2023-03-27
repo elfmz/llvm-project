@@ -256,6 +256,7 @@ struct ScalarEnumerationTraits<FormatStyle::BreakConstructorInitializersStyle> {
     IO.enumCase(Value, "BeforeColon", FormatStyle::BCIS_BeforeColon);
     IO.enumCase(Value, "BeforeComma", FormatStyle::BCIS_BeforeComma);
     IO.enumCase(Value, "AfterColon", FormatStyle::BCIS_AfterColon);
+    IO.enumCase(Value, "AfterColonSeparated", FormatStyle::BCIS_AfterColonSeparated);
   }
 };
 

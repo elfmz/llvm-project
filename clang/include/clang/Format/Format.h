@@ -1852,7 +1852,16 @@ struct FormatStyle {
     ///        initializer1(),
     ///        initializer2()
     /// \endcode
-    BCIS_AfterColon
+    BCIS_AfterColon,
+
+    /// Break constructor initializers after separated colon and commas.
+    /// \code
+    ///    Constructor()
+    ///        :
+    ///        initializer1(),
+    ///        initializer2()
+    /// \endcode
+    BCIS_AfterColonSeparated
   };
 
   /// The break constructor initializers style to use.

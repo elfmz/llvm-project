@@ -20866,6 +20866,13 @@ TEST_F(FormatTest, ConstructorInitializerIndentWidth) {
                "aaaaaaaaaaaaaaaaaaaa(aaaaaaaaaaaaaaaaaaaa),\n"
                "aaaaaaaaaaaaaaaaaaaa(aaaaaaaaaaaaaaaaaaaa) {}",
                Style);
+
+  Style.BreakConstructorInitializers = FormatStyle::BCIS_AfterColonSeparated;
+  verifyFormat("SomeClass::Constructor()\n"
+               ":\n"
+               "aaaaaaaaaaaaaaaaaaaa(aaaaaaaaaaaaaaaaaaaa),\n"
+               "aaaaaaaaaaaaaaaaaaaa(aaaaaaaaaaaaaaaaaaaa) {}",
+               Style);
 }
 
 TEST_F(FormatTest, BreakConstructorInitializersBeforeComma) {
