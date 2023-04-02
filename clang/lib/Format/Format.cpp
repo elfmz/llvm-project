@@ -858,8 +858,8 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("AlignConsecutiveMacros", Style.AlignConsecutiveMacros);
     IO.mapOptional("AlignEscapedNewlines", Style.AlignEscapedNewlines);
     IO.mapOptional("AlignOperands", Style.AlignOperands);
-    IO.mapOptional("ContinuationAlignByTab", Style.ContinuationAlignByTab);
-    IO.mapOptional("TrailingCommentIgnoreColumnLimit", Style.TrailingCommentIgnoreColumnLimit);
+    IO.mapOptional("AlignByTab", Style.AlignByTab);
+    IO.mapOptional("AllowLongTrailingComments", Style.AllowLongTrailingComments);
     IO.mapOptional("AlignTrailingComments", Style.AlignTrailingComments);
     IO.mapOptional("AllowAllArgumentsOnNextLine",
                    Style.AllowAllArgumentsOnNextLine);
@@ -1317,8 +1317,8 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.AlignAfterOpenBracket = FormatStyle::BAS_Align;
   LLVMStyle.AlignArrayOfStructures = FormatStyle::AIAS_None;
   LLVMStyle.AlignOperands = FormatStyle::OAS_Align;
-  LLVMStyle.ContinuationAlignByTab = false;
-  LLVMStyle.TrailingCommentIgnoreColumnLimit = false;
+  LLVMStyle.AlignByTab = false;
+  LLVMStyle.AllowLongTrailingComments = false;
   LLVMStyle.AlignConsecutiveAssignments = {};
   LLVMStyle.AlignConsecutiveAssignments.Enabled = false;
   LLVMStyle.AlignConsecutiveAssignments.AcrossEmptyLines = false;

@@ -370,8 +370,8 @@ struct FormatStyle {
   /// \version 3.5
   OperandAlignmentStyle AlignOperands;
 
-  bool ContinuationAlignByTab;
-  bool TrailingCommentIgnoreColumnLimit;
+  bool AlignByTab;
+  bool AllowLongTrailingComments;
 
   /// Enums for AlignTrailingComments
   enum TrailingCommentsAlignmentKinds : int8_t {

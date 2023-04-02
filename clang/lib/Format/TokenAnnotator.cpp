@@ -3268,7 +3268,7 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) const {
                              ChildSize + Current->SpacesRequiredBefore;
 
       if (Current->isOneOf(TT_BlockComment, TT_LineComment) &&
-          Style.ContinuationAlignByTab && Style.TabWidth > 1 &&
+          Style.AlignByTab && Style.TabWidth > 1 &&
           Current->SpacesRequiredBefore > 0 &&
           (!Current->Next || Current->Next->MustBreakBefore)
           ) {

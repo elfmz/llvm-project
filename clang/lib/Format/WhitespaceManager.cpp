@@ -461,7 +461,7 @@ AlignTokenSequence(const FormatStyle &Style, unsigned Start, unsigned End,
 
 static unsigned EffectiveColumnLimit(const FormatStyle &Style, SmallVector<WhitespaceManager::Change, 16> &Changes, size_t StartAt)
 {
-  if (!Style.TrailingCommentIgnoreColumnLimit || Style.ColumnLimit <= 0)
+  if (!Style.AllowLongTrailingComments || Style.ColumnLimit <= 0)
     return Style.ColumnLimit;
 
   for (unsigned i = StartAt, e = Changes.size(); i != e; ++i) {
@@ -918,7 +918,7 @@ void WhitespaceManager::alignConsecutiveDeclarations() {
 }
 
 void WhitespaceManager::alignChainedConditionals() {
-  if (Style.ContinuationAlignByTab)
+  if (Style.AlignByTab)
     return;
 
   if (Style.BreakBeforeTernaryOperators) {
@@ -1066,6 +1066,10 @@ void WhitespaceManager::alignTrailingComments() {
 
 void WhitespaceManager::alignTrailingComments(unsigned Start, unsigned End,
                                               unsigned Column) {
+  if (Style.AlignByTab && Style.TabWidth > 1 &&
+    Column % Style.TabWidth != 0) {
+    Column+= Style.TabWidth - (Column % Style.TabWidth);
+  }
   for (unsigned i = Start; i != End; ++i) {
     int Shift = 0;
     if (Changes[i].IsTrailingComment)
@@ -1108,6 +1112,10 @@ void WhitespaceManager::alignEscapedNewlines() {
 
 void WhitespaceManager::alignEscapedNewlines(unsigned Start, unsigned End,
                                              unsigned Column) {
+  if (Style.AlignByTab && Style.TabWidth > 1 &&
+    Column % Style.TabWidth != 0) {
+    Column+= Style.TabWidth - (Column % Style.TabWidth);
+  }
   for (unsigned i = Start; i < End; ++i) {
     Change &C = Changes[i];
     if (C.NewlinesBefore > 0) {

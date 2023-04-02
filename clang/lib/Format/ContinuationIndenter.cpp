@@ -1093,7 +1093,7 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
 
 unsigned ContinuationIndenter::calcContinuationBase(unsigned CurrentIndent, unsigned SuggestedBase)
 {
-    if (Style.ContinuationAlignByTab) {
+    if (Style.AlignByTab) {
         const unsigned Misalignment = SuggestedBase % Style.TabWidth;
         if (Misalignment) {
             SuggestedBase -= Misalignment;

@@ -482,15 +482,15 @@ TEST(ConfigParseTest, ParsesConfiguration) {
               FormatStyle::OAS_DontAlign);
   CHECK_PARSE("AlignOperands: true", AlignOperands, FormatStyle::OAS_Align);
 
-  Style.ContinuationAlignByTab = true;
-  CHECK_PARSE("ContinuationAlignment: false", ContinuationAlignment, false);
-  CHECK_PARSE("ContinuationAlignment: true", ContinuationAlignment, true);
-  CHECK_PARSE("ContinuationAlignment: false", ContinuationAlignment, false);
+  Style.AlignByTab = true;
+  CHECK_PARSE("AlignByTab: false", AlignByTab, false);
+  CHECK_PARSE("AlignByTab: true", AlignByTab, true);
+  CHECK_PARSE("AlignByTab: false", AlignByTab, false);
 
-  Style.TrailingCommentIgnoreColumnLimit = true;
-  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: false", TrailingCommentIgnoreColumnLimit, false);
-  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: true", TrailingCommentIgnoreColumnLimit, true);
-  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: false", TrailingCommentIgnoreColumnLimit, false);
+  Style.AllowLongTrailingComments = true;
+  CHECK_PARSE("AllowLongTrailingComments: false", AllowLongTrailingComments, false);
+  CHECK_PARSE("AllowLongTrailingComments: true", AllowLongTrailingComments, true);
+  CHECK_PARSE("AllowLongTrailingComments: false", AllowLongTrailingComments, false);
 
   CHECK_PARSE("AlignTrailingComments: Leave", AlignTrailingComments,
               FormatStyle::TrailingCommentsAlignmentStyle(
