@@ -306,7 +306,7 @@ BreakableComment::getSplit(unsigned LineIndex, unsigned TailOffset,
                            unsigned ColumnLimit, unsigned ContentStartColumn,
                            const llvm::Regex &CommentPragmasRegex) const {
   // Don't break lines matching the comment pragmas regex.
-  if (CommentPragmasRegex.match(Content[LineIndex]))
+  if (CommentPragmasRegex.match(Content[LineIndex]) || Style.TrailingCommentIgnoreColumnLimit)
     return Split(StringRef::npos, 0);
   return getCommentSplit(Content[LineIndex].substr(TailOffset),
                          ContentStartColumn, ColumnLimit, Style.TabWidth,
@@ -494,7 +494,7 @@ BreakableToken::Split BreakableBlockComment::getSplit(
     unsigned LineIndex, unsigned TailOffset, unsigned ColumnLimit,
     unsigned ContentStartColumn, const llvm::Regex &CommentPragmasRegex) const {
   // Don't break lines matching the comment pragmas regex.
-  if (CommentPragmasRegex.match(Content[LineIndex]))
+  if (CommentPragmasRegex.match(Content[LineIndex]) || Style.TrailingCommentIgnoreColumnLimit)
     return Split(StringRef::npos, 0);
   return getCommentSplit(Content[LineIndex].substr(TailOffset),
                          ContentStartColumn, ColumnLimit, Style.TabWidth,

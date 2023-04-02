@@ -87,7 +87,7 @@ public:
 
   /// Get the column limit for this line. This is the style's column
   /// limit, potentially reduced for preprocessor definitions.
-  unsigned getColumnLimit(const LineState &State) const;
+  unsigned getColumnLimit(const LineState &State, const FormatToken *Current) const;
 
 private:
   /// Mark the next token as consumed in \p State and modify its stacks

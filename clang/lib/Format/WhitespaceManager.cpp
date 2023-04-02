@@ -459,6 +459,22 @@ AlignTokenSequence(const FormatStyle &Style, unsigned Start, unsigned End,
   }
 }
 
+static unsigned EffectiveColumnLimit(const FormatStyle &Style, SmallVector<WhitespaceManager::Change, 16> &Changes, size_t StartAt)
+{
+  if (!Style.TrailingCommentIgnoreColumnLimit || Style.ColumnLimit <= 0)
+    return Style.ColumnLimit;
+
+  for (unsigned i = StartAt, e = Changes.size(); i != e; ++i) {
+    if (Changes[i].IsTrailingComment) {
+      return Style.ColumnLimit + Changes[i].Spaces + Changes[i].TokenLength;
+    }
+    if (Changes[i].NewlinesBefore != 0) {
+      break;
+    }
+  }
+  return Style.ColumnLimit;
+}
+
 // Walk through a subset of the changes, starting at StartAt, and find
 // sequences of matching tokens to align. To do so, keep track of the lines and
 // whether or not a matching token was found on a line. If a matching token is
@@ -655,8 +671,8 @@ static unsigned AlignTokens(const FormatStyle &Style, F &&Matches,
     unsigned NewAnchor = std::max(ChangeWidthAnchor, WidthAnchor);
     unsigned NewRight = std::max(ChangeWidthRight, WidthRight);
     // `ColumnLimit == 0` means there is no column limit.
-    if (Style.ColumnLimit != 0 &&
-        Style.ColumnLimit < NewLeft + NewAnchor + NewRight) {
+    if (Style.ColumnLimit != 0 && // xxx!
+        EffectiveColumnLimit(Style, Changes, i) < NewLeft + NewAnchor + NewRight) {
       AlignCurrentSequence();
       StartOfSequence = i;
       WidthLeft = ChangeWidthLeft;
@@ -805,7 +821,7 @@ void WhitespaceManager::alignConsecutiveMacros() {
     int LineLengthAfter = -Changes[I].Spaces;
     for (unsigned j = I; j != E && Changes[j].NewlinesBefore == 0; ++j)
       LineLengthAfter += Changes[j].Spaces + Changes[j].TokenLength;
-    unsigned ChangeMaxColumn = Style.ColumnLimit - LineLengthAfter;
+    unsigned ChangeMaxColumn = EffectiveColumnLimit(Style, Changes, I) - LineLengthAfter;
 
     MinColumn = std::max(MinColumn, ChangeMinColumn);
     MaxColumn = std::min(MaxColumn, ChangeMaxColumn);
@@ -972,7 +988,7 @@ void WhitespaceManager::alignTrailingComments() {
                                     Changes[i].TokenLength + OriginalSpaces;
       // If leaving comments makes the line exceed the column limit, give up to
       // leave the comments.
-      if (RestoredLineLength >= Style.ColumnLimit && Style.ColumnLimit != 0)
+     if (RestoredLineLength >= EffectiveColumnLimit(Style, Changes, i) && Style.ColumnLimit != 0)
         break;
       Changes[i].Spaces = OriginalSpaces;
       continue;
@@ -983,8 +999,8 @@ void WhitespaceManager::alignTrailingComments() {
 
     if (Style.ColumnLimit == 0)
       ChangeMaxColumn = UINT_MAX;
-    else if (Style.ColumnLimit >= Changes[i].TokenLength)
-      ChangeMaxColumn = Style.ColumnLimit - Changes[i].TokenLength;
+    else if (EffectiveColumnLimit(Style, Changes, i) >= Changes[i].TokenLength)
+      ChangeMaxColumn = EffectiveColumnLimit(Style, Changes, i) - Changes[i].TokenLength;
     else
       ChangeMaxColumn = ChangeMinColumn;
 

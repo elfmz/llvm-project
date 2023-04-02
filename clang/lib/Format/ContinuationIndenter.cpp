@@ -352,7 +352,7 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
   if (Style.BraceWrapping.BeforeLambdaBody && Current.CanBreakBefore &&
       Current.is(TT_LambdaLBrace) && Previous.isNot(TT_LineComment)) {
     auto LambdaBodyLength = getLengthToMatchingParen(Current, State.Stack);
-    return LambdaBodyLength > getColumnLimit(State);
+    return LambdaBodyLength > getColumnLimit(State, &Current);
   }
   if (Current.MustBreakBefore ||
       (Current.is(TT_InlineASMColon) &&
@@ -407,7 +407,7 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
        opensProtoMessageField(Previous, Style)) &&
       Style.ColumnLimit > 0 &&
       getLengthToMatchingParen(Previous, State.Stack) + State.Column - 1 >
-          getColumnLimit(State)) {
+          getColumnLimit(State, &Current)) {
     return true;
   }
 
@@ -418,7 +418,7 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
           : Current;
   if (BreakConstructorInitializersToken.is(TT_CtorInitializerColon) &&
       (State.Column + State.Line->Last->TotalLength - Previous.TotalLength >
-           getColumnLimit(State) ||
+           getColumnLimit(State, &Current) ||
        CurrentState.BreakBeforeParameter) &&
       (!Current.isTrailingComment() || Current.NewlinesBefore > 0) &&
       (Style.AllowShortFunctionsOnASingleLine != FormatStyle::SFS_All ||
@@ -440,7 +440,7 @@ bool ContinuationIndenter::mustBreak(const LineState &State) {
 
   unsigned NewLineColumn = calcContinuationBase(CurrentState.Indent, getNewLineColumn(State));
   if (Current.isMemberAccess() && Style.ColumnLimit != 0 &&
-      State.Column + getLengthToNextOperator(Current) > Style.ColumnLimit &&
+      State.Column + getLengthToNextOperator(Current) > getColumnLimit(State, &Current) &&
       (State.Column > NewLineColumn ||
        Current.NestingLevel < State.StartOfLineLevel)) {
     return true;
@@ -1752,7 +1752,7 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
         // If this '[' opens an ObjC call, determine whether all parameters fit
         // into one line and put one per line if they don't.
         if (getLengthToMatchingParen(Current, State.Stack) + State.Column >
-            getColumnLimit(State)) {
+            getColumnLimit(State, &Current)) {
           BreakBeforeParameter = true;
         }
       } else {
@@ -1843,7 +1843,7 @@ void ContinuationIndenter::moveStatePastScopeCloser(LineState &State) {
           getLengthToMatchingParen(CurrentScopeOpener, State.Stack) +
           CurrentScopeOpener.TotalLength - Current.TotalLength - 1;
       if (State.Column + Current.ColumnWidth + NecessarySpaceInLine <=
-          Style.ColumnLimit) {
+          getColumnLimit(State, &Current)) {
         CurrentState.BreakBeforeParameter = false;
       }
     }
@@ -2021,8 +2021,8 @@ unsigned ContinuationIndenter::reformatRawStringLiteral(
   // have to manually add the penalty for the prefix R"delim( over the column
   // limit.
   unsigned PrefixExcessCharacters =
-      StartColumn + NewPrefixSize > Style.ColumnLimit
-          ? StartColumn + NewPrefixSize - Style.ColumnLimit
+      StartColumn + NewPrefixSize > getColumnLimit(State, &Current)
+          ? StartColumn + NewPrefixSize - getColumnLimit(State, &Current)
           : 0;
   bool IsMultiline =
       ContentStartsOnNewline || (NewCode->find('\n') != std::string::npos);
@@ -2045,8 +2045,8 @@ unsigned ContinuationIndenter::addMultilineToken(const FormatToken &Current,
   // for all other lines is constant, and we ignore it.
   State.Column = Current.LastLineColumnWidth;
 
-  if (ColumnsUsed > getColumnLimit(State))
-    return Style.PenaltyExcessCharacter * (ColumnsUsed - getColumnLimit(State));
+  if (ColumnsUsed > getColumnLimit(State, &Current))
+    return Style.PenaltyExcessCharacter * (ColumnsUsed - getColumnLimit(State, &Current));
   return 0;
 }
 
@@ -2097,8 +2097,9 @@ unsigned ContinuationIndenter::handleEndOfLine(const FormatToken &Current,
                            Strict);
     }
   }
-  if (State.Column > getColumnLimit(State)) {
-    unsigned ExcessCharacters = State.Column - getColumnLimit(State);
+
+  if (State.Column > getColumnLimit(State, &Current)) {
+    unsigned ExcessCharacters = State.Column - getColumnLimit(State, &Current);
     Penalty += Style.PenaltyExcessCharacter * ExcessCharacters;
   }
   return Penalty;
@@ -2139,7 +2140,7 @@ ContinuationIndenter::getRawStringStyle(const FormatToken &Current,
   }
   if (!RawStringStyle)
     return std::nullopt;
-  RawStringStyle->ColumnLimit = getColumnLimit(State);
+  RawStringStyle->ColumnLimit = getColumnLimit(State, &Current);
   return RawStringStyle;
 }
 
@@ -2239,7 +2240,7 @@ ContinuationIndenter::breakProtrudingToken(const FormatToken &Current,
   if (!Token)
     return {0, false};
   assert(Token->getLineCount() > 0);
-  unsigned ColumnLimit = getColumnLimit(State);
+  unsigned ColumnLimit = getColumnLimit(State, &Current);
   if (Current.is(TT_LineComment)) {
     // We don't insert backslashes when breaking line comments.
     ColumnLimit = Style.ColumnLimit;
@@ -2611,9 +2612,19 @@ ContinuationIndenter::breakProtrudingToken(const FormatToken &Current,
   return {Penalty, Exceeded};
 }
 
-unsigned ContinuationIndenter::getColumnLimit(const LineState &State) const {
+unsigned ContinuationIndenter::getColumnLimit(const LineState &State, const FormatToken *Current) const {
   // In preprocessor directives reserve two chars for trailing " \".
-  return Style.ColumnLimit - (State.Line->InPPDirective ? 2 : 0);
+  unsigned EffectiveLimit = Style.ColumnLimit - (State.Line->InPPDirective ? 2 : 0);
+  for (; Current; Current = Current->Next) {
+    if (!Current->Next || Current->Next->MustBreakBefore) {
+      if (Current->is(tok::comment)) {
+        EffectiveLimit+= Current->ColumnWidth;
+      }
+      break;
+    }
+  }
+
+  return EffectiveLimit;
 }
 
 bool ContinuationIndenter::nextIsMultilineString(const LineState &State) {

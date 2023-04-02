@@ -487,6 +487,11 @@ TEST(ConfigParseTest, ParsesConfiguration) {
   CHECK_PARSE("ContinuationAlignment: true", ContinuationAlignment, true);
   CHECK_PARSE("ContinuationAlignment: false", ContinuationAlignment, false);
 
+  Style.TrailingCommentIgnoreColumnLimit = true;
+  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: false", TrailingCommentIgnoreColumnLimit, false);
+  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: true", TrailingCommentIgnoreColumnLimit, true);
+  CHECK_PARSE("TrailingCommentIgnoreColumnLimit: false", TrailingCommentIgnoreColumnLimit, false);
+
   CHECK_PARSE("AlignTrailingComments: Leave", AlignTrailingComments,
               FormatStyle::TrailingCommentsAlignmentStyle(
                   {FormatStyle::TCAS_Leave, 1}));
