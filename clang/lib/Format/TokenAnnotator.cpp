@@ -3266,6 +3266,17 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) const {
     } else {
       Current->TotalLength = Prev->TotalLength + Current->ColumnWidth +
                              ChildSize + Current->SpacesRequiredBefore;
+
+      if (Current->isOneOf(TT_BlockComment, TT_LineComment) &&
+          Style.ContinuationAlignByTab && Style.TabWidth > 1 &&
+          Current->SpacesRequiredBefore > 0 &&
+          (!Current->Next || Current->Next->MustBreakBefore)
+          ) {
+          while ((Prev->TotalLength + Current->SpacesRequiredBefore) % Style.TabWidth) {
+            Current->SpacesRequiredBefore++;
+            Current->TotalLength++;
+          }
+      }
     }
 
     if (Current->is(TT_CtorInitializerColon))
