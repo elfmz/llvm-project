@@ -3272,6 +3272,12 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) const {
           Current->SpacesRequiredBefore > 0 &&
           (!Current->Next || Current->Next->MustBreakBefore)
           ) {
+          auto Misalignment = (Prev->TotalLength + Current->SpacesRequiredBefore) % Style.TabWidth;
+          if (Current->SpacesRequiredBefore > Misalignment && Current->SpacesRequiredBefore - Misalignment > 1) {
+            Current->SpacesRequiredBefore-= Misalignment;
+            Current->TotalLength-= Misalignment;
+          }
+
           while ((Prev->TotalLength + Current->SpacesRequiredBefore) % Style.TabWidth) {
             Current->SpacesRequiredBefore++;
             Current->TotalLength++;
