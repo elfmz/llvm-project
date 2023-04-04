@@ -37,6 +37,8 @@ enum LineType {
 enum ScopeType {
   // Contained in class declaration/definition.
   ST_Class,
+  // Contained in class declaration/definition.
+  ST_Enum,
   // Contained within function definition.
   ST_Function,
   // Contained within other scope block (loop, if/else, etc).

@@ -129,6 +129,8 @@ private:
     case TT_StructLBrace:
     case TT_UnionLBrace:
       return ST_Class;
+    case TT_EnumLBrace:
+      return ST_Enum;
     default:
       return ST_Other;
     }
@@ -957,6 +959,9 @@ private:
     // operators.
     if (Tok->is(TT_VerilogTableItem))
       return true;
+
+    Tok->IsMember = (!Scopes.empty() && (Scopes.back() == ST_Class || Scopes.back() == ST_Enum));
+
     switch (Tok->Tok.getKind()) {
     case tok::plus:
     case tok::minus:

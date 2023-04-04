@@ -63,27 +63,27 @@ template <> struct MappingTraits<FormatStyle::AlignConsecutiveStyle> {
   static void enumInput(IO &IO, FormatStyle::AlignConsecutiveStyle &Value) {
     IO.enumCase(Value, "None",
                 FormatStyle::AlignConsecutiveStyle(
-                    {/*Enabled=*/false, /*AcrossEmptyLines=*/false,
+                    {true, /*Enabled=*/false, /*AcrossEmptyLines=*/false,
                      /*AcrossComments=*/false, /*AlignCompound=*/false,
                      /*PadOperators=*/true}));
     IO.enumCase(Value, "Consecutive",
                 FormatStyle::AlignConsecutiveStyle(
-                    {/*Enabled=*/true, /*AcrossEmptyLines=*/false,
+                    {true, /*Enabled=*/true, /*AcrossEmptyLines=*/false,
                      /*AcrossComments=*/false, /*AlignCompound=*/false,
                      /*PadOperators=*/true}));
     IO.enumCase(Value, "AcrossEmptyLines",
                 FormatStyle::AlignConsecutiveStyle(
-                    {/*Enabled=*/true, /*AcrossEmptyLines=*/true,
+                    {true, /*Enabled=*/true, /*AcrossEmptyLines=*/true,
                      /*AcrossComments=*/false, /*AlignCompound=*/false,
                      /*PadOperators=*/true}));
     IO.enumCase(Value, "AcrossComments",
-                FormatStyle::AlignConsecutiveStyle({/*Enabled=*/true,
+                FormatStyle::AlignConsecutiveStyle({true, /*Enabled=*/true,
                                                     /*AcrossEmptyLines=*/false,
                                                     /*AcrossComments=*/true,
                                                     /*AlignCompound=*/false,
                                                     /*PadOperators=*/true}));
     IO.enumCase(Value, "AcrossEmptyLinesAndComments",
-                FormatStyle::AlignConsecutiveStyle({/*Enabled=*/true,
+                FormatStyle::AlignConsecutiveStyle({true, /*Enabled=*/true,
                                                     /*AcrossEmptyLines=*/true,
                                                     /*AcrossComments=*/true,
                                                     /*AlignCompound=*/false,
@@ -92,12 +92,12 @@ template <> struct MappingTraits<FormatStyle::AlignConsecutiveStyle> {
     // For backward compatibility.
     IO.enumCase(Value, "true",
                 FormatStyle::AlignConsecutiveStyle(
-                    {/*Enabled=*/true, /*AcrossEmptyLines=*/false,
+                    {true, /*Enabled=*/true, /*AcrossEmptyLines=*/false,
                      /*AcrossComments=*/false, /*AlignCompound=*/false,
                      /*PadOperators=*/true}));
     IO.enumCase(Value, "false",
                 FormatStyle::AlignConsecutiveStyle(
-                    {/*Enabled=*/false, /*AcrossEmptyLines=*/false,
+                    {true, /*Enabled=*/false, /*AcrossEmptyLines=*/false,
                      /*AcrossComments=*/false, /*AlignCompound=*/false,
                      /*PadOperators=*/true}));
   }
@@ -851,6 +851,8 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("AlignArrayOfStructures", Style.AlignArrayOfStructures);
     IO.mapOptional("AlignConsecutiveAssignments",
                    Style.AlignConsecutiveAssignments);
+    IO.mapOptional("AlignConsecutiveMembersAssignments",
+                   Style.AlignConsecutiveMembersAssignments);
     IO.mapOptional("AlignConsecutiveBitFields",
                    Style.AlignConsecutiveBitFields);
     IO.mapOptional("AlignConsecutiveDeclarations",
@@ -1320,11 +1322,13 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.AlignByTab = false;
   LLVMStyle.AllowLongTrailingComments = false;
   LLVMStyle.AlignConsecutiveAssignments = {};
+  LLVMStyle.AlignConsecutiveAssignments.Specified = false;
   LLVMStyle.AlignConsecutiveAssignments.Enabled = false;
   LLVMStyle.AlignConsecutiveAssignments.AcrossEmptyLines = false;
   LLVMStyle.AlignConsecutiveAssignments.AcrossComments = false;
   LLVMStyle.AlignConsecutiveAssignments.AlignCompound = false;
   LLVMStyle.AlignConsecutiveAssignments.PadOperators = true;
+  LLVMStyle.AlignConsecutiveMembersAssignments = LLVMStyle.AlignConsecutiveAssignments;
   LLVMStyle.AlignConsecutiveBitFields = {};
   LLVMStyle.AlignConsecutiveDeclarations = {};
   LLVMStyle.AlignConsecutiveMacros = {};

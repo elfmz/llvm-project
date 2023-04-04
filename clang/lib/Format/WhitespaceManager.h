@@ -221,7 +221,7 @@ private:
   void alignConsecutiveMacros();
 
   /// Align consecutive assignments over all \c Changes.
-  void alignConsecutiveAssignments();
+  void alignConsecutiveAssignments(int Scope = -1);
 
   /// Align consecutive bitfields over all \c Changes.
   void alignConsecutiveBitFields();

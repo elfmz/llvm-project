@@ -329,6 +329,9 @@ struct FormatToken {
   /// \c true if this token ends a group of C++ attributes.
   unsigned EndsCppAttributeGroup : 1;
 
+  /// \c true if this token part of class, struct, union or enum
+  unsigned IsMember : 1;
+
 private:
   /// Contains the kind of block if this token is a brace.
   unsigned BlockKind : 2;

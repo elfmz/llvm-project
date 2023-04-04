@@ -159,6 +159,9 @@ struct FormatStyle {
   ///     AcrossComments: false
   /// \endcode
   struct AlignConsecutiveStyle {
+    /// Whether values is specified in config
+    /// Used to choose between AlignConsecutiveMembersAssignments and AlignConsecutiveAssignments
+    bool Specified;
     /// Whether aligning is enabled.
     /// \code
     ///   #define SHORT_NAME       42
@@ -273,6 +276,11 @@ struct FormatStyle {
   /// \endcode
   /// \version 3.8
   AlignConsecutiveStyle AlignConsecutiveAssignments;
+
+  /// Same as AlignConsecutiveAssignments but applies only to classes, enums etc
+  /// If unspecified - then AlignConsecutiveAssignments used instead
+  AlignConsecutiveStyle AlignConsecutiveMembersAssignments;
+
   /// Style of aligning consecutive bit fields.
   ///
   /// ``Consecutive`` will align the bitfield separators of consecutive lines.

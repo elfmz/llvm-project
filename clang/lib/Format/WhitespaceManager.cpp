@@ -832,8 +832,22 @@ void WhitespaceManager::alignConsecutiveMacros() {
                      FoundMatchOnLine, AlignMacrosMatches, Changes);
 }
 
-void WhitespaceManager::alignConsecutiveAssignments() {
-  if (!Style.AlignConsecutiveAssignments.Enabled)
+void WhitespaceManager::alignConsecutiveAssignments(int Scope) {
+  const auto *Setting = &Style.AlignConsecutiveAssignments;
+  if (Scope == -1) {
+    if (Style.AlignConsecutiveMembersAssignments.Specified) {
+      alignConsecutiveAssignments(1);
+      Scope = 2;
+    }
+  } else if (Scope == 1) {
+    Setting = &Style.AlignConsecutiveMembersAssignments;
+  } else { // unexpected scope specified
+    abort();
+  }
+  // Scope & 1 - members
+  // Scope & 2 - nonmembers
+
+  if (!Setting->Enabled)
     return;
 
   AlignTokens(
@@ -852,7 +866,12 @@ void WhitespaceManager::alignConsecutiveAssignments() {
         if (Previous && Previous->is(tok::kw_operator))
           return false;
 
-        return Style.AlignConsecutiveAssignments.AlignCompound
+        if ((Scope & 1) == 0 && C.Tok->IsMember)
+          return false;
+        if ((Scope & 2) == 0 && !C.Tok->IsMember)
+          return false;
+
+        return Setting->AlignCompound
                    ? C.Tok->getPrecedence() == prec::Assignment
                    : (C.Tok->is(tok::equal) ||
                       // In Verilog the '<=' is not a compound assignment, thus
@@ -861,7 +880,7 @@ void WhitespaceManager::alignConsecutiveAssignments() {
                       (Style.isVerilog() && C.Tok->is(tok::lessequal) &&
                        C.Tok->getPrecedence() == prec::Assignment));
       },
-      Changes, /*StartAt=*/0, Style.AlignConsecutiveAssignments,
+      Changes, /*StartAt=*/0, *Setting,
       /*RightJustify=*/true);
 }
 
