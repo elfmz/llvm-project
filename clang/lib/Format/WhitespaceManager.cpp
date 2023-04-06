@@ -1486,7 +1486,7 @@ void WhitespaceManager::generateChanges() {
       appendIndentText(
           ReplacementText, C.Tok->IndentLevel, std::max(0, C.Spaces),
           std::max((int)C.StartOfTokenColumn, C.Spaces) - std::max(0, C.Spaces),
-          C.IsAligned);
+          C.IsAligned, C.IsTrailingComment);
       ReplacementText.append(C.CurrentLinePrefix);
       storeReplacement(C.OriginalWhitespaceRange, ReplacementText);
     }
@@ -1539,8 +1539,16 @@ void WhitespaceManager::appendEscapedNewlineText(
 void WhitespaceManager::appendIndentText(std::string &Text,
                                          unsigned IndentLevel, unsigned Spaces,
                                          unsigned WhitespaceStartColumn,
-                                         bool IsAligned) {
-  switch (Style.UseTab) {
+                                         bool IsAligned, bool IsTrailingComment) {
+
+  auto UseTab = Style.UseTab;
+  if (UseTab == FormatStyle::UT_ForContinuationAndIndentationAndComments) {
+    UseTab = IsTrailingComment ?
+      FormatStyle::UT_Always :
+      FormatStyle::UT_ForContinuationAndIndentation;
+  }
+
+  switch (UseTab) {
   case FormatStyle::UT_Never:
     Text.append(Spaces, ' ');
     break;
@@ -1585,6 +1593,7 @@ void WhitespaceManager::appendIndentText(std::string &Text,
     }
     Text.append(Spaces, ' ');
     break;
+  default: abort();
   }
 }
 

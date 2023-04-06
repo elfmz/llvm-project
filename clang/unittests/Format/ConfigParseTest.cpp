@@ -523,6 +523,8 @@ TEST(ConfigParseTest, ParsesConfiguration) {
   CHECK_PARSE("UseTab: Always", UseTab, FormatStyle::UT_Always);
   CHECK_PARSE("UseTab: ForContinuationAndIndentation", UseTab,
               FormatStyle::UT_ForContinuationAndIndentation);
+  CHECK_PARSE("UseTab: ForContinuationAndIndentationAndComments", UseTab,
+              FormatStyle::UT_ForContinuationAndIndentationAndComments);
   CHECK_PARSE("UseTab: AlignWithSpaces", UseTab,
               FormatStyle::UT_AlignWithSpaces);
   // For backward compatibility:

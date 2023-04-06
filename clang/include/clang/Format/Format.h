@@ -4181,6 +4181,9 @@ struct FormatStyle {
     /// Fill all leading whitespace with tabs, and use spaces for alignment that
     /// appears within a line (e.g. consecutive assignments and declarations).
     UT_ForContinuationAndIndentation,
+    /// Same as UT_ForContinuationAndIndentation but also uses tabs
+    /// for trailing comments alignment
+    UT_ForContinuationAndIndentationAndComments,
     /// Use tabs for line continuation and indentation, and spaces for
     /// alignment.
     UT_AlignWithSpaces,

@@ -342,7 +342,7 @@ private:
                                 unsigned EscapedNewlineColumn);
   void appendIndentText(std::string &Text, unsigned IndentLevel,
                         unsigned Spaces, unsigned WhitespaceStartColumn,
-                        bool IsAligned);
+                        bool IsAligned, bool IsTrailingComment);
   unsigned appendTabIndent(std::string &Text, unsigned Spaces,
                            unsigned Indentation);
 
