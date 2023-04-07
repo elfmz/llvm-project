@@ -1486,7 +1486,7 @@ void WhitespaceManager::generateChanges() {
       appendIndentText(
           ReplacementText, C.Tok->IndentLevel, std::max(0, C.Spaces),
           std::max((int)C.StartOfTokenColumn, C.Spaces) - std::max(0, C.Spaces),
-          C.IsAligned, C.IsTrailingComment);
+          C.NewlinesBefore > 0 || C.Tok->NewlinesBefore > 0 || !C.Tok->Previous, C.IsAligned, C.IsTrailingComment);
       ReplacementText.append(C.CurrentLinePrefix);
       storeReplacement(C.OriginalWhitespaceRange, ReplacementText);
     }
@@ -1539,7 +1539,7 @@ void WhitespaceManager::appendEscapedNewlineText(
 void WhitespaceManager::appendIndentText(std::string &Text,
                                          unsigned IndentLevel, unsigned Spaces,
                                          unsigned WhitespaceStartColumn,
-                                         bool IsAligned, bool IsTrailingComment) {
+                                         bool IsLeading, bool IsAligned, bool IsTrailingComment) {
 
   auto UseTab = Style.UseTab;
   if (UseTab == FormatStyle::UT_ForContinuationAndIndentationAndComments) {
@@ -1574,14 +1574,14 @@ void WhitespaceManager::appendIndentText(std::string &Text,
     break;
   }
   case FormatStyle::UT_ForIndentation:
-    if (WhitespaceStartColumn == 0) {
+    if (WhitespaceStartColumn == 0 && IsLeading) {
       unsigned Indentation = IndentLevel * Style.IndentWidth;
       Spaces = appendTabIndent(Text, Spaces, Indentation);
     }
     Text.append(Spaces, ' ');
     break;
   case FormatStyle::UT_ForContinuationAndIndentation:
-    if (WhitespaceStartColumn == 0)
+    if (WhitespaceStartColumn == 0 && IsLeading)
       Spaces = appendTabIndent(Text, Spaces, Spaces);
     Text.append(Spaces, ' ');
     break;
