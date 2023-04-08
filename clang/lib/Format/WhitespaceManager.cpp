@@ -1173,6 +1173,12 @@ void WhitespaceManager::alignArrayInitializers() {
 
 void WhitespaceManager::alignArrayInitializers(unsigned Start, unsigned End) {
 
+  for (unsigned i = Start; i < End; ++i) {
+    if (Changes[i].Tok->is(tok::comment) || Changes[i].ContinuesPPDirective)
+      return;
+    }
+  }
+
   if (Style.AlignArrayOfStructures == FormatStyle::AIAS_Right)
     alignArrayInitializersRightJustified(getCells(Start, End));
   else if (Style.AlignArrayOfStructures == FormatStyle::AIAS_Left)
@@ -1354,6 +1360,12 @@ WhitespaceManager::CellDescriptions WhitespaceManager::getCells(unsigned Start,
         Cells.push_back(CellDescription{i, ++Cell, i + 1, false, nullptr});
         CellCounts.push_back(C.Tok->Previous->isNot(tok::comma) ? Cell + 1
                                                                 : Cell);
+        const auto *PrevNonComment = C.Tok->getPreviousNonComment();
+        if (C.Tok->Previous != PrevNonComment) {
+          Cell--;
+        }
+        CellCounts.push_back(PrevNonComment->isNot(tok::comma) ? Cell + 1 : Cell);
+
         // Go to the next non-comment and ensure there is a break in front
         const auto *NextNonComment = C.Tok->getNextNonComment();
         while (NextNonComment->is(tok::comma))
